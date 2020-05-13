@@ -477,7 +477,8 @@ class Cluster:
         Collects job steps from sacct command for completed jobs.
         """
         # Default 'sacct' command line options.
-        opt_ext = ' -a -n -D -P -s R -o ' + ','.join(JobStep.Fields)
+        # opt_ext = ' -a -n -D -P -s R -o ' + ','.join(JobStep.Fields)
+        opt_ext = ' -a -n -D -P --delimiter \"||\" -s R -o all'
         opt_ext += ' -S %s' % self['Start'].strftime('%Y-%m-%dT%H:%M:%S')
         opt_ext += ' -E %s' % self['End'].strftime('%Y-%m-%dT%H:%M:%S')
 
@@ -793,9 +794,9 @@ class JobStep:
             raise TypeError('\"%s\" is not a List.' % var)
 
         if len(cls.Fields) != len(var):
-            warning('\"%s\" (%d) does not have the same size as a JobStep (%d), ignore.' % \
+            raise ValueError( \
+                '\"%s\" (%d) does not have the same size as a JobStep (%d).' % \
                 (var, len(var), len(cls.Fields)))
-            return None
 
         step = cls()
 
@@ -819,7 +820,7 @@ class JobStep:
         if type(var) is not str:
             raise TypeError('\"%s\" is not a String.' % var)
 
-        step = cls.FromList(var.split('|'))
+        step = cls.FromList(var.split('||'))
 
         return step
 
